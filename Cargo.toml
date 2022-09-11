@@ -1,10 +1,10 @@
 [package]
-name = "session_service_proto"
+name = "session_service_grpc"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "session_service_proto"
+name = "session_service_grpc"
 path = "src/lib.rs"
 
 [dependencies]
