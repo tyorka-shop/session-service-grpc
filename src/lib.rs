@@ -2,17 +2,12 @@ mod session_service;
 
 pub use session_service::session_service_server as server;
 
-pub use session_service::{
-    VerifyRequest, VerifyResponse, TokenStatus,
-};
+pub use session_service::{TokenStatus, VerifyRequest, VerifyResponse};
 
 use tonic::Request;
 
-use session_service::{
-    session_service_client::SessionServiceClient,
-};
-
-pub const FILE_DESCRIPTOR_SET: &[u8] = include_bytes!("description.bin");
+use session_service::session_service_client::SessionServiceClient;
+use tonic_reflection::server::{ServerReflection, ServerReflectionServer};
 
 #[derive(Debug)]
 pub enum VerifyError {
@@ -63,4 +58,12 @@ impl Client {
             _ => Err(VerifyError::Unautorized),
         }
     }
+}
+
+pub fn make_reflection_service() -> ServerReflectionServer<impl ServerReflection> {
+    let file_descriptor_set: &[u8] = include_bytes!("description.bin");
+    tonic_reflection::server::Builder::configure()
+        .register_encoded_file_descriptor_set(file_descriptor_set)
+        .build()
+        .unwrap()
 }

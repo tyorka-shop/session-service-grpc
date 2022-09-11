@@ -709,7 +709,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f747710de3dcd43b88c9168773254e809d8ddbdf9653b84e2554ab219f17860"
 
 [[package]]
-name = "session_service_proto"
+name = "session_service_grpc"
 version = "0.1.0"
 dependencies = [
  "env_logger",
