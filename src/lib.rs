@@ -27,12 +27,13 @@ impl TokenStatus {
     }
 }
 
+#[derive(Clone)]
 pub struct Client {
     pub url: String,
 }
 
 impl Client {
-    pub async fn new(url: &str) -> Self {
+    pub fn new(url: &str) -> Self {
         Self {
             url: url.to_string(),
         }
