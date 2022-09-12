@@ -8,12 +8,13 @@ use tonic::Request;
 
 use session_service::session_service_client::SessionServiceClient;
 use tonic_reflection::server::{ServerReflection, ServerReflectionServer};
+use log::error;
 
 #[derive(Debug)]
 pub enum VerifyError {
-    Connect,
-    Request,
-    Unautorized,
+    Connect(tonic::transport::Error),
+    Request(tonic::Status),
+    Unautorized(TokenStatus),
 }
 
 impl TokenStatus {
@@ -42,7 +43,10 @@ impl Client {
     pub async fn verify(&self, token: &str) -> Result<String, VerifyError> {
         let mut client = SessionServiceClient::connect(self.url.to_owned())
             .await
-            .map_err(|_| VerifyError::Connect)?;
+            .map_err(|e| {
+                error!("Failed to connect to session service: {}", e);
+                VerifyError::Connect(e)
+            })?;
 
         let request = Request::new(VerifyRequest {
             token: token.to_string(),
@@ -51,12 +55,15 @@ impl Client {
         let response = client
             .verify(request)
             .await
-            .map_err(|_| VerifyError::Request)?
+            .map_err(|e| {
+                error!("Failed to send request: {}", e);
+                VerifyError::Request(e)
+            })?
             .into_inner();
 
         match TokenStatus::from_num(response.status) {
             TokenStatus::Ok => Ok(response.email),
-            _ => Err(VerifyError::Unautorized),
+            status => Err(VerifyError::Unautorized(status)),
         }
     }
 }
